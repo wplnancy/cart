@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css"/>
+
+</head>
+<body>
+<div class="container" ng-app=""  ng-controller="cartController">
+    <table class="table table-bordered" ng-show="data.length">
+        <thead>
+            <tr>
+                <td>产品编号</td>
+                <td>产品名称</td>
+                <td>购买数量</td>
+                <td>产品单价</td>
+                <td>产品总价</td>
+                <td>操作</td>
+            </tr>
+
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in data">
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td>
+                <button type="button" class="btn btn-primary" ng-click="reduce(item.id)">-</button>
+                <input type="text" value="{{item.quantity}}"/>
+                <button type="button" class="btn btn-primary" ng-click="add(item.id)">+</button>
+            </td>
+            <td>{{item.price |  currency:  "￥"}}</td>
+            <td>{{item.price*item.quantity | currency: "￥"}}</td>
+            <td>
+                <button type="button" class="btn btn-danger" ng-click="remove(item.id)">删除</button>
+            </td>
+        </tr>
+        <tr>
+            <td>总购买价</td>
+            <td>{{totalPrice() | currency: "￥"}}</td>
+            <td>总购买的数量</td>
+            <td>{{totalQuantity()}}</td>
+            <td colspan="2"><button type="button" class="btn btn-danger" ng-click="data={}">清空购物车</button></td>
+        </tr>
+        </tbody>
+
+    </table>
+    <p ng-show="!data.length">您的购物车为空</p>
+</div>
+
+
+
+</body>
+<script src="angular.js"></script>
+<script>
+    var cartController=function($scope){
+        $scope.data=[
+            {
+                id:"1000",
+                name:"红米note",
+                quantity:3,
+                price:1099
+
+            },
+            {
+                id:"1001",
+                name:"vivo",
+                quantity:4,
+                price:2400
+
+            },
+            {
+                id:"1003",
+                name:"iphone7",
+                quantity:10,
+                price:7899
+            },
+            {
+                id:"1004",
+                name:"三星",
+                quantity:10,
+                price:4500
+
+            },
+            {
+                id:"999",
+                name:"苹果",
+                quantity:10,
+                price:6000
+
+            }
+        ];
+        $scope.totalPrice=function(){
+            var total=0;
+            angular.forEach($scope.data,function(item){
+                total+=item.price*item.quantity;
+            });
+            return total;
+        };
+//        计算总数量
+        $scope.totalQuantity=function(){
+            var total=0;
+            angular.forEach($scope.data,function(item){
+                total+=item.quantity;
+            });
+            return total;
+        };
+//        获取索引号
+        function findIndex(id){
+            var index=-1;
+            //根据id来找到索引号
+            angular.forEach($scope.data,function(item,key){
+                if(item.id===id){
+                    index=key;
+                }
+            });
+            return index;
+        }
+//        删除产品
+        $scope.remove=function(id){
+            var index=findIndex(id);
+            if(index!==-1){
+                $scope.data.splice(index,1);
+            }
+        };
+        //增加商品
+        $scope.add=function(id){
+            var index=findIndex(id);
+            if(index!=-1){
+                $scope.data[index].quantity++;
+            }
+        };
+        $scope.reduce=function(id){
+            var index=findIndex(id);
+            if(index!=-1){
+                if($scope.data[index].quantity>1){
+                    $scope.data[index].quantity--;
+                }else{
+                    var res = confirm("是否从购物车中删除");
+                    if (res) {
+                        $scope.remove(id);
+                    }
+                }
+            }
+        };
+        //监视quantity的变化
+        $scope.$watch('data',function(newvalue,oldValue){
+            angular.forEach(newvalue,function(item,key)
+            {
+                if (item.quantity < 1) {
+                    var res = confirm("是否从购物车中删除");
+                    if (res) {
+                        $scope.remove(item.id);
+                    } else {
+                        $scope.data.quantity = oldValue.data[index].quantity;
+                    }
+                }
+            });
+        },true);
+
+    }
+</script>
+</html>
